@@ -132,6 +132,9 @@ end
 
 function main()
 
+	local latitude = 0
+	local longitude =0
+
 	-- If you have header, please fix start line number.
 	local count = 1
 	while true do
@@ -145,14 +148,19 @@ function main()
 
 		local elements = cvsparse(line)
 
-		address = elements[1]
+		local address = elements[1]
 
-		-- Select first coordinates.
-		local coordinates = cvsparse(getcoordinates(address)[1])
-		latitude = coordinates[1]
-		longitude = coordinates[2]
+		local coordinatestable = getcoordinates(address)
+		if coordinatestable[1] == nil then
+		    latitude = 0
+		    longitude = 0
+		else
+		    local coordinates = cvsparse(coordinatestable[1])
+		    latitude = coordinates[1]
+		    longitude = coordinates[2]
+		end
 
-		io.write(string.format("%s, %f, %f\n", address, latitude, longitude))
+		io.write(string.format("%s, %s, %s\n", address, latitude, longitude))
 
 
 		count = count + 1
