@@ -47,6 +47,11 @@ BASEURL = "http://geo.search.olp.yahooapis.jp/OpenLocalPlatform/V1/geoCoder"
 -- Search level, possibly ge, le, eq
 LEVEL = "le"
 
+-- Fallback Coordinates, Japan Standard Time deridian/Akashi-shi
+FALLBACK_LATITUDE = 135 -- Keido
+FALLBACK_LONGITUDE = 34.39 -- Ido
+
+
 -- Encode string to URL style.
 function urlencode(string)
     string = string.gsub(string, "\n", "\r\n")
@@ -152,8 +157,8 @@ function main()
 
 		local coordinatestable = getcoordinates(address)
 		if coordinatestable[1] == nil then
-		    latitude = 0
-		    longitude = 0
+		    latitude = FALLBACK_LATITUDE
+		    longitude = FALLBACK_LONGITUDE
 		else
 		    local coordinates = cvsparse(coordinatestable[1])
 		    latitude = coordinates[1]
