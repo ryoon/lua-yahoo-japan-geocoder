@@ -138,7 +138,7 @@ end
 function main()
 
 	local latitude = 0
-	local longitude =0
+	local longitude = 0
 
 	-- If you have header, please fix start line number.
 	local count = 1
