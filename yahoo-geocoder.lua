@@ -51,6 +51,8 @@ LEVEL = "le"
 FALLBACK_LATITUDE = 135 -- Keido
 FALLBACK_LONGITUDE = 34.39 -- Ido
 
+-- Set stdout buffering off
+io.stdout:setvbuf "no"
 
 -- Encode string to URL style.
 function urlencode(string)
