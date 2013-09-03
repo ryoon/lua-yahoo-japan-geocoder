@@ -25,7 +25,8 @@ THE SOFTWARE.
 ]]
 
 --[[
-This program is written for lua 5.2, luasocket 3.0rc1, and lua-expat 20130831.
+This program is written for lua 5.2, luasocket 3.0rc1, lua-expat 20130831,
+and slnunicode 20130903 ( https://github.com/phi-gamma/slnunicode/ ).
 
 Detail specification about Yahoo! Japan Geocoder API is found at
 http://developer.yahoo.co.jp/webapi/map/openlocalplatform/v1/geocoder.html .
@@ -36,6 +37,7 @@ local io = require("io")
 local http = require("socket.http")
 local ltn12 = require("ltn12")
 local lxp = require("lxp")
+local unicode = require("unicode")
 
 -- CONSTANTS
 -- APPID is granted to individual by Yahoo! Japan. Do not disclose this!
@@ -48,8 +50,8 @@ BASEURL = "http://geo.search.olp.yahooapis.jp/OpenLocalPlatform/V1/geoCoder"
 LEVEL = "le"
 
 -- Fallback Coordinates, Japan Standard Time deridian/Akashi-shi
-FALLBACK_LATITUDE = 135 -- Keido
-FALLBACK_LONGITUDE = 34.39 -- Ido
+FALLBACK_LATITUDE = 0
+FALLBACK_LONGITUDE = 0
 
 -- Set stdout buffering off
 io.stdout:setvbuf "no"
@@ -158,16 +160,27 @@ function main()
 		local address = elements[1]
 
 		local coordinatestable = getcoordinates(address)
+
 		if coordinatestable[1] == nil then
-		    latitude = FALLBACK_LATITUDE
-		    longitude = FALLBACK_LONGITUDE
+		    local address = unicode.utf8.gsub(address, "[０１２３４５６７８９０0-9].*", "")
+
+		    local coordinatestable = getcoordinates(address)
+
+		    if coordinatestable[1] == nil then
+			latitude = FALLBACK_LATITUDE
+		    	longitude = FALLBACK_LONGITUDE
+		    else
+		        local coordinates = cvsparse(coordinatestable[1])
+		        latitude = coordinates[1]
+		        longitude = coordinates[2]
+		    end
 		else
 		    local coordinates = cvsparse(coordinatestable[1])
 		    latitude = coordinates[1]
 		    longitude = coordinates[2]
 		end
 
-		io.write(string.format("%s, %s, %s\n", address, latitude, longitude))
+		io.write(string.format("%s, %f, %f\n", address, latitude, longitude))
 
 
 		count = count + 1
