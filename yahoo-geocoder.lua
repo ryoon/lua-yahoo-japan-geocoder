@@ -53,6 +53,9 @@ LEVEL = "le"
 FALLBACK_LATITUDE = 0
 FALLBACK_LONGITUDE = 0
 
+-- Fallback search (1 is enabled, 0 is disabled)
+FALLBACK_SEARCH = 1
+
 -- Set stdout buffering off
 io.stdout:setvbuf "no"
 
@@ -162,17 +165,22 @@ function main()
 		local coordinatestable = getcoordinates(address)
 
 		if coordinatestable[1] == nil then
-		    local address = unicode.utf8.gsub(address, "[０１２３４５６７８９０0-9].*", "")
+		    if FALLBACK_SEARCH == 1 then
+			local address = unicode.utf8.gsub(address, "[０１２３４５６７８９０0-9].*", "")
 
-		    local coordinatestable = getcoordinates(address)
+			local coordinatestable = getcoordinates(address)
 
-		    if coordinatestable[1] == nil then
+			if coordinatestable[1] == nil then
+			    latitude = FALLBACK_LATITUDE
+		    	    longitude = FALLBACK_LONGITUDE
+			else
+			    local coordinates = cvsparse(coordinatestable[1])
+			    latitude = coordinates[1]
+			    longitude = coordinates[2]
+			end
+		    else
 			latitude = FALLBACK_LATITUDE
 		    	longitude = FALLBACK_LONGITUDE
-		    else
-		        local coordinates = cvsparse(coordinatestable[1])
-		        latitude = coordinates[1]
-		        longitude = coordinates[2]
 		    end
 		else
 		    local coordinates = cvsparse(coordinatestable[1])
