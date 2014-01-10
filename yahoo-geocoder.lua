@@ -49,12 +49,12 @@ BASEURL = "http://geo.search.olp.yahooapis.jp/OpenLocalPlatform/V1/geoCoder"
 -- Search level, possibly ge, le, eq
 LEVEL = "le"
 
+-- Recursive search, if true, search upper category
+RECURSIVE = "true"
+
 -- Fallback Coordinates, Japan Standard Time deridian/Akashi-shi
 FALLBACK_LATITUDE = 0
 FALLBACK_LONGITUDE = 0
-
--- Fallback search (1 is enabled, 0 is disabled)
-FALLBACK_SEARCH = 1
 
 -- Set stdout buffering off
 io.stdout:setvbuf "no"
@@ -73,7 +73,7 @@ end
 
 -- Composite GET URL.
 function compositeurl(address)
-    url = BASEURL.."?".."appid="..APPID.."&".."ar="..LEVEL.."&".."query="..urlencode(address)
+    url = BASEURL.."?".."appid="..APPID.."&".."ar="..LEVEL.."&".."recursive="..RECURSIVE.."&".."query="..urlencode(address)
 
     return url
 end
@@ -141,7 +141,6 @@ function getcoordinates(address)
 end
 
 
-
 function main()
 
 	local latitude = 0
@@ -164,28 +163,14 @@ function main()
 
 		local coordinatestable = getcoordinates(address)
 
-		if coordinatestable[1] == nil then
-		    if FALLBACK_SEARCH == 1 then
-			local address = unicode.utf8.gsub(address, "[０１２３４５６７８９０0-9].*", "")
-
-			local coordinatestable = getcoordinates(address)
-
-			if coordinatestable[1] == nil then
-			    latitude = FALLBACK_LATITUDE
-		    	    longitude = FALLBACK_LONGITUDE
-			else
-			    local coordinates = cvsparse(coordinatestable[1])
-			    latitude = coordinates[1]
-			    longitude = coordinates[2]
-			end
-		    else
-			latitude = FALLBACK_LATITUDE
-		    	longitude = FALLBACK_LONGITUDE
-		    end
+		if coordinatestable[1] == nil
+			then
+			latitude = 0
+			longitude = 0
 		else
-		    local coordinates = cvsparse(coordinatestable[1])
-		    latitude = coordinates[1]
-		    longitude = coordinates[2]
+			local coordinates = cvsparse(coordinatestable[1])
+			latitude = coordinates[1]
+			longitude = coordinates[2]
 		end
 
 		io.write(string.format("%s, %f, %f\n", address, latitude, longitude))
